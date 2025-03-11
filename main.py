@@ -114,15 +114,15 @@ def main(request):
     # 設定 CORS headers
     if request.method == 'OPTIONS':
         headers = {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': 'https://localbackend.cna.com.tw',
             'Access-Control-Allow-Methods': 'POST',
             'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600'
+            'Access-Control-Max-Age': '3600' 
         }
         return ('', 204, headers)
 
     headers = {
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': 'https://localbackend.cna.com.tw'
     }
 
     # 檢查請求格式
