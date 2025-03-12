@@ -1,9 +1,39 @@
 import functions_framework
-from es_SearchLib import *
-from aiFunc import get_completion_aisuite
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
+import os
+from elasticsearch import Elasticsearch
+import aisuite as ai
 
-# load_dotenv() 
+load_dotenv()
+
+es_username = os.getenv("es_username")
+es_password = os.getenv("es_password")
+
+es = Elasticsearch("https://media-vector.es.asia-east1.gcp.elastic-cloud.com", basic_auth=(es_username, es_password))
+
+
+##### 欄位字串搜尋
+### 使用 match 單一搜尋
+def es_search_string_match(es, index, field_name, search_string, recall_size=10):
+    query = { "size": recall_size, "query": { "match": { field_name: search_string } } }
+    response = es.search(index=index, body=query)
+    print(f"Found {response['hits']['total']['value']} documents")
+    return response['hits']['hits']
+
+# 使用aisuite生成摘要
+def get_completion_aisuite(messages, model_type, temperature):
+    """
+    model_type的格式 : "openai:gpt-4o", "anthropic:claude-3-5-sonnet-20241022"
+    api key直接用.env設定不需要經過config，命名要是 OPENAI_API_KEY, ANTHROPIC_API_KEY 
+    """
+    client = ai.Client()
+    response = client.chat.completions.create(
+        model=model_type,
+        messages=messages,
+        temperature=temperature
+    )
+
+    return response.choices[0].message.content
 
 def summarize(input):
     # 先檢查input是不是空的
