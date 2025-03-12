@@ -141,19 +141,31 @@ def GenerateSummary(input_text):
 # cloud function post
 @functions_framework.http
 def main(request):
-    # 設定 CORS headers
-    if request.method == 'OPTIONS':
+    # 設定允許的來源網域
+    ALLOWED_ORIGINS = ['https://localbackend.cna.com.tw', 'https://medialabdev.cna.com.tw']
+    origin = request.headers.get('Origin')
+    
+    # 如果請求的來源在允許清單中，就使用該來源
+    if origin in ALLOWED_ORIGINS:
         headers = {
-            'Access-Control-Allow-Origin': 'https://localbackend.cna.com.tw',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600' 
+            'Access-Control-Allow-Origin': origin,
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '3600',
+            'Access-Control-Allow-Credentials': 'true'
         }
-        return ('', 204, headers)
+    else:
+        headers = {
+            'Access-Control-Allow-Origin': ALLOWED_ORIGINS[0],
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '3600',
+            'Access-Control-Allow-Credentials': 'true'
+        }
 
-    headers = {
-        'Access-Control-Allow-Origin': 'https://localbackend.cna.com.tw'
-    }
+    # 處理 OPTIONS 請求
+    if request.method == 'OPTIONS':
+        return ('', 204, headers)
 
     # 檢查請求格式
     if not request.is_json:
